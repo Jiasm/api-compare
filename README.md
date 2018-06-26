@@ -59,7 +59,7 @@ key|type|desc
 :-:|:-:|:-:
 urlList|`Array`|List of request  
 validator|`Function`|Custom validate  
-optionList?|`Array`/`Object`|Request option  
+optionList?|`Array`/`Object`|Request option, like `method`, `headers`  
 
 ```javascript
 c.append({
