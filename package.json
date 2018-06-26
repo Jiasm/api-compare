@@ -1,6 +1,6 @@
 {
   "name": "api-compare",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": ":yum: Optional comparator, compare multiple request results, highlight the diff.",
   "main": "index.js",
   "scripts": {
