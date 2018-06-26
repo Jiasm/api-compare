@@ -8,9 +8,9 @@ const defaultOptions = {
 }
 
 class Comparator {
-  constructor() {
+  constructor({ errorOnly } = {}) {
     this.tasks = []
-    this.errorList = []
+    this.errorOnly = errorOnly
   }
   append({ urlList, optionList, validator }) {
     this.tasks.push(
@@ -18,9 +18,11 @@ class Comparator {
         urlList,
         optionList,
         validator,
-        errorList: this.errorList
+        errorOnly: this.errorOnly
       })
     )
+
+    return this
   }
   async check() {
     let results = [...(await Promise.all(this.tasks.map(task => task.check())))]
@@ -33,7 +35,7 @@ class ComparatorWorker {
     urlList,
     optionList = [defaultOptions],
     validator,
-    errorList
+    errorOnly
   }) {
     if (!urlList || !urlList.length) throw new Error('[urlList] is required')
     if (!Array.isArray(optionList)) {
@@ -47,7 +49,8 @@ class ComparatorWorker {
       option: optionList[index % optionLen]
     }))
     this.validator = validator
-    this.errorList = []
+    this.errorOnly = errorOnly
+    this.messageList = []
   }
 
   async check() {
@@ -58,33 +61,42 @@ class ComparatorWorker {
     results = results.map(item => JSON.parse(item))
 
     this.validator(
-      proxyItem(...results.splice(0, 1), results, this.errorHandler.bind(this))
+      proxyItem(
+        ...results.splice(0, 1),
+        results,
+        this.validateHandler.bind(this)
+      )
     )
 
-    return this.errorList
+    return this.messageList
   }
 
-  errorHandler(message) {
-    this.errorList.push(message)
+  validateHandler(message) {
+    if (this.errorOnly && message.validate) return
+    else this.messageList.push(message)
   }
 }
 
-function proxyItem(target, maps, errHandler) {
+function proxyItem(target, maps, validateHandler) {
   var proxyConfig = {
     get(target, key) {
       if (typeof target[key] === 'object' && target[key] !== null) {
-        return proxyItem(target[key], maps.map(item => item[key]), errHandler)
+        return proxyItem(
+          target[key],
+          maps.map(item => item[key]),
+          validateHandler
+        )
       } else {
         return target[key]
       }
     },
-    set(target, key, value) {
+    set(target, key, msg) {
       let tagValue = target[key]
 
-      if (maps.some(item => tagValue !== item[key])) {
-        errHandler(value)
-        // console.error('Check error:', value)
-      }
+      validateHandler({
+        msg,
+        validate: maps.some(item => tagValue !== item[key])
+      })
     }
   }
 
