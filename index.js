@@ -25,7 +25,7 @@ class Comparator {
     return this
   }
   async check() {
-    let results = [...(await Promise.all(this.tasks.map(task => task.check())))]
+    let results = await Promise.all(this.tasks.map(task => task.check()))
     return results
   }
 }
