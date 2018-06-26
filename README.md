@@ -41,7 +41,7 @@ main()
 
 ### init
 
-> errorOnly? <Boolean>  Filter access log
+> errorOnly? [Boolean]  Filter access log
 
 ```javascript
 let c = new Comparator({
@@ -53,9 +53,9 @@ let c = new Comparator({
 
 Add new request group.
 
-> urlList     <Array>        List of request
-> optionList? <Array|Object> Request option
-> validator   <Function>     Custom validate
+> urlList     [Array]        List of request  
+> optionList? [Array|Object] Request option  
+> validator   [Function]     Custom validate  
 
 ```javascript
 c.append({
