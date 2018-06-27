@@ -83,7 +83,7 @@ function proxyItem(target, maps, validateHandler) {
       if (typeof target[key] === 'object' && target[key] !== null) {
         return proxyItem(
           target[key],
-          maps.map(item => item[key]),
+          maps.map(item => item && item[key]),
           validateHandler
         )
       } else {
@@ -93,9 +93,12 @@ function proxyItem(target, maps, validateHandler) {
     set(target, key, msg) {
       let tagValue = target[key]
 
+      // ignore undefined variable
+      if (!tagValue) return
+
       validateHandler({
         msg,
-        validate: maps.some(item => tagValue !== item[key])
+        validate: !maps.some(item => item && tagValue !== item[key])
       })
     }
   }
